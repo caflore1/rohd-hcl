@@ -28,6 +28,14 @@ class CsrBlock extends CsrContainer {
   /// for registers that are wider than the frontdoor data width.
   final int logicalRegisterIncrement;
 
+  /// Indicates whether the `reset` signal driving this block's registers
+  /// should be treated as an asynchronous reset.
+  ///
+  /// If `true`, registers reset as soon as `reset` is asserted, independent
+  /// of `clk`. If `false` (the default), `reset` is treated as synchronous
+  /// and registers only reset on the next active edge of `clk`.
+  final bool asyncReset;
+
   /// Direct access ports for reading and writing individual registers.
   ///
   /// There is a public copy that is exported out of the module
@@ -52,6 +60,7 @@ class CsrBlock extends CsrContainer {
     required super.frontRead,
     super.allowLargerRegisters,
     this.logicalRegisterIncrement = 1,
+    this.asyncReset = false,
     super.reserveName,
     super.reserveDefinitionName,
     String? definitionName,
@@ -234,6 +243,7 @@ class CsrBlock extends CsrContainer {
       Sequential(
         clk,
         reset: reset,
+        asyncReset: asyncReset,
         resetValues: {
           csrs[i]: csrs[i].resetValue,
         },

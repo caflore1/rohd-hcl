@@ -27,11 +27,20 @@ class CsrTopConfig extends CsrContainerConfig {
   /// Blocks in this module.
   final List<CsrBlockConfig> blocks;
 
+  /// Indicates whether the `reset` signal driving all registers in this
+  /// module should be treated as an asynchronous reset.
+  ///
+  /// If `true`, registers reset as soon as `reset` is asserted, independent
+  /// of `clk`. If `false` (the default), `reset` is treated as synchronous
+  /// and registers only reset on the next active edge of `clk`.
+  final bool asyncReset;
+
   /// Construct a new top level configuration.
   CsrTopConfig({
     required super.name,
     required this.blockSize,
     required List<CsrBlockConfig> blocks,
+    this.asyncReset = false,
   }) : blocks = List.unmodifiable(blocks) {
     _validate();
   }
@@ -161,11 +170,13 @@ class CsrTopConfig extends CsrContainerConfig {
     String? name,
     int? blockSize,
     List<CsrBlockConfig>? blocks,
+    bool? asyncReset,
   }) =>
       CsrTopConfig(
         name: name ?? this.name,
         blockSize: blockSize ?? this.blockSize,
         blocks: blocks ?? this.blocks,
+        asyncReset: asyncReset ?? this.asyncReset,
       );
 
   @override
@@ -177,6 +188,7 @@ class CsrTopConfig extends CsrContainerConfig {
     return other is CsrTopConfig &&
         super == other &&
         blockSize == other.blockSize &&
+        asyncReset == other.asyncReset &&
         blocks.length == other.blocks.length &&
         const ListEquality<CsrBlockConfig>().equals(blocks, other.blocks);
   }
@@ -185,5 +197,6 @@ class CsrTopConfig extends CsrContainerConfig {
   int get hashCode =>
       super.hashCode ^
       blockSize.hashCode ^
+      asyncReset.hashCode ^
       const ListEquality<CsrBlockConfig>().hash(blocks);
 }
